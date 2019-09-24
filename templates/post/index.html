@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 col-sm-8 col-xs-12">
+            <div class="list-group">
+                {% for post in post_list  %}
+                    <a href="{{ post.get_absolute_url }}" target="_blank" class="list-group-item">
+                        <span class="badge">{{ post.views }}</span>
+                        <h4 class="list-group-item-heading">{{ post.title }}</h4>
+                        <span><i class="fa fa-clock-o"></i>&nbsp;{{ post.pub_time }}</span>
+                    </a>
+                {% empty %}
+                    暂无文章
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 hidden-xs">
+            {% include 'post/right-navbar.html' %}
+        </div>
+    </div>
+{% endblock %}

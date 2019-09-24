@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="{% url 'post:index' %}">Frank's Blog</a>
+    </div>
+    <label class="toggle-label visible-xs-inline-block" for="toggle-checkbox">MENU</label>
+    <input class="hidden" id="toggle-checkbox" type="checkbox">
+    <div class="hidden-xs">
+        <div class="col-sm-offset-2">
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a href="#">{{ request.user.username }}</a></li>
+                    <li><a href="{% url 'user:logout' %}">退出</a></li>
+                {% else %}
+                    <li><a href="{% url 'user:login' %}" data-toggle="modal">登陆</a></li>
+                    <li><a href="{% url 'user:register' %}" data-toggle="modal">注册</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        <form class="navbar-form navbar-right" action="" method="GET">
+            <div class="form-group has-feedback">
+                <label class="sr-only" for="Search">Search：</label>
+                <input type="search" class="form-control" placeholder="Search" id="search" name="q" required>
+                <span class="glyphicon glyphicon-search form-control-feedback"></span>
+            </div>
+        </form>
+    </div>
+</div>

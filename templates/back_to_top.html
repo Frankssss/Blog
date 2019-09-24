@@ -1,0 +1,37 @@
+<style type="text/css">
+    #back-to-top{
+        position:fixed;
+        width: 50px;
+        height: 50px;
+        bottom:1.5rem;
+        right:1.5rem;
+        background: #0e84b5;
+        font-size:12px;
+        color:#fff;
+        border:none;
+        outline:none;
+        transition:0.3s;
+        border-radius:40%;
+        font-weight:bold;
+        font-family:inherit;
+    }
+    #back-to-top:hover{
+        background:#333;
+    }
+</style>
+<button type="button" id="back-to-top" stlyle="z-index:100;">Top</button>
+<script>
+    $(function (){
+        $("#back-to-top").hide();
+        $('#back-to-top').click(function () {
+            $('html, body').animate({scrollTop:0}, 500);
+        })
+        $(window).scroll(function(){
+            if ($(this).scrollTop() > 300){
+                $('#back-to-top').fadeIn(300);
+            } else {
+                $('#back-to-top').stop().fadeOut(300);
+            }
+        })
+    })
+</script>

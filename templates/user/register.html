@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-12">
+            <div class="text-center h2">用户注册</div>
+            <form id="registerForm" class="form-login" action="{% url 'user:register' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    {{ form.password1 }}
+                </div>
+                <div class="form-group">
+                    {{ form.password2 }}
+                </div>
+                <div class="form-group">
+                    <div class="pull-left h4">
+                        已有账号？<a href="{% url 'user:login' %}">去登陆</a>
+                    </div>
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-primary">注册</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block extend_script %}
+    <script>
+        $('#registerForm').submit(function (){
+            $.ajax({
+                url: '{% url "user:register" %}',
+                type: 'POST',
+                cache: false,
+                data: $(this).serialize(),
+                success: function (data){
+                    if (data['status'] == 'SUCCESS'){
+                        layer.msg(data['msg']);
+                    } else if (data['status'] == 'ERROR'){
+                        layer.msg(data['msg'][0]);
+                    }
+                }
+            });
+            return false;
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-12">
+            <div class="text-center h2">用户登录</div>
+            <form id="loginForm" class="form-login" action="{% url 'user:login' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    {{ form.password }}
+                </div>
+                <div class="form-group">
+                    <div class="pull-left h4">
+                        还没有账号？<a href="{% url 'user:register' %}">立即注册</a>
+                    </div>
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-primary">登录</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block extend_script %}
+    <script>
+        $('#loginForm').submit(function (){
+            $.ajax({
+                url: '{% url "user:login" %}',
+                type: 'POST',
+                cache: false,
+                data: $(this).serialize(),
+                success: function (data){
+                    if (data['status'] == 'SUCCESS'){
+                        window.location = '/';
+                    } else if (data['status'] == 'ERROR'){
+                        layer.msg(data['msg'][0]);
+                    }
+                }
+            });
+            return false;
+        });
+    </script>
+{% endblock %}

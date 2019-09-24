@@ -1,0 +1,89 @@
+{% load blog_tags %}
+{% load staticfiles %}
+<div class="sidebar">
+    <div class="list-group">
+        <h2 class="module-heading">最热文章</h2>
+        {% get_host_posts as post_list %}
+        <ul>
+            {% for post in post_list %}
+                <li>
+                    <a class="dis" href="{{ post.get_absolute_url }}" target="_blank">{{ post.title }}</a>
+                    <span class="post-date">{{ post.pub_time }}</span>
+                </li>
+            {% empty %}
+                <li><a href="#">暂无文章</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="list-group">
+        <h2 class="module-heading">归档</h2>
+       {% archives as date_list %}
+        <ul>
+            {% for date in date_list %}
+                <li>
+                    <a href="{% url 'post:archives' date.year date.month %}">{{ date.year }} 年 {{ date.month }} 月</a>
+                </li>
+            {% empty %}
+                <li><a href="#">暂无归档</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="list-group">
+        <h2 class="module-heading">分类</h2>
+       {% get_categories as category_list %}
+        <ul>
+            {% for cate in category_list %}
+                <li>
+                    <a href="{% url 'post:category' cate.id %}">{{ cate.name }} ({{ cate.num_posts }})</a>
+                </li>
+            {% empty %}
+                <li><a href="#">暂无分类</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="list-group">
+        <h2 class="module-heading">标签云</h2>
+        {% get_tags as tag_list %}
+        <ul>
+            {% for elem in tag_list %}
+                {% if forloop.counter|add:0|divisibleby:5 %}
+                    <a href="{% url 'post:tag' elem.pk %}" class="tag">
+                        <span class="label label-default">
+                            {{ elem.name }}
+                        </span>
+                    </a>
+                {% endif %}
+                {% if forloop.counter|add:-1|divisibleby:5 %}
+                    <a href="{% url 'post:tag' elem.pk %}" class="tag">
+                        <span class="label label-danger">
+                            {{ elem.name }}
+                        </span>
+                    </a>
+                {% endif %}
+                {% if forloop.counter|add:-2|divisibleby:5 %}
+                    <a href="{% url 'post:tag' elem.pk %}" class="tag">
+                        <span class="label label-success">
+                            {{ elem.name }}
+                        </span>
+                    </a>
+                {% endif %}
+                {% if forloop.counter|add:-3|divisibleby:5 %}
+                    <a href="{% url 'post:tag' elem.pk%}" class="tag">
+                        <span class="label label-info">
+                            {{ elem.name }}
+                        </span>
+                    </a>
+                {% endif %}
+                {% if forloop.counter|add:-4|divisibleby:5 %}
+                    <a href="{%url 'post:tag' elem.pk %}" class="tag">
+                        <span class="label label-warning">
+                            {{ elem.name }}
+                        </span>
+                    </a>
+                {% endif %}
+            {% empty %}
+                <a href="#">暂无标签云</a>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

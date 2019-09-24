@@ -2,12 +2,13 @@ __author__ = 'Frank Shen'
 
 from django.urls import path
 
-from .views import login, register, logout
+from .views import LoginView, RegisterView, LogoutView, UserConfirmView
 
 
-app_name = 'accounts'
+app_name = 'user'
 urlpatterns = [
-    path('accounts/signin/', login, name='login'),
-    path('accounts/signup/', register, name='register'),
-    path('accoutns/signout/', logout, name='logout'),
+    path('signin/', LoginView.as_view(), name='login'),
+    path('signup/', RegisterView.as_view(), name='register'),
+    path('signout/', LogoutView.as_view(), name='logout'),
+    path('confirm/', UserConfirmView.as_view(), name='confirm')
 ]

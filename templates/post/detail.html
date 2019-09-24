@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+{% block extend_css %}
+    <link rel="stylesheet" href="{% static 'post/css/post_style.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 col-sm-8 col-xs-12">
+            <div class="post-info">
+                <h1 class="post-title">{{ post.title }}</h1>
+                <span><i class="fa fa-clock-o"></i>&nbsp;{{ post.pub_time }}</span>
+                <span><i class="fa fa-comment"></i>&nbsp;0</span>
+                <div class="post-body">
+                    {{ post.body | safe }}
+                </div>
+            </div>
+            <div class="thumbs_content">
+                <a id="like" href="javascript:increase_likes({{ post.id }});" class="thumbs_button fa fa-heart-o" title="点赞，支持一下">
+                    点赞(<span id="like_num">{{post.likes}}</span>)
+                </a>
+                <a class="reward_button fa fa-coffee" title="打赏，支持一下"> 打赏</a>
+                <span class="clear"></span>
+            </div>
+{#            <div class="post-nav">#}
+{#                {% if pre_post %}#}
+{#                    <a href="{{ pre_post.get_absolute_url}}" class="pre-post pull-left h4 btn btn-sm">#}
+{#                        <li class="icon-arrow-left"></li>#}
+{#                        {{ pre_post.title}}#}
+{#                    </a>#}
+{#                {% endif %}#}
+{#                {% if next_post %}#}
+{#                    <a href="{{ next_post.get_absolute_url }}" class="next-post pull-right h4 btn btn-sm">#}
+{#                        {{next_post.title}}#}
+{#                    <li class="icon-arrow-right"></li>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{#            </div>#}
+            <div class="comment-area">
+                {% if request.user.is_authenticated %}
+                    <form id="comment-form" action="{% url 'comment:post-comment' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.target }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.parent }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.content }}
+                        </div>
+                        <input type="submit" value="发布" class="btn btn-primary pull-right" style="margin-top:5px;">
+                    </form>
+                {% else %}
+                    <a href="{% url 'user:login' %}" class="h3">登录<span class="h4">后评论</span></a>
+                {% endif %}
+                <h3>共&nbsp;{{ post.post_comments.count }}&nbsp;条评论</h3>
+                <div class="comment-list">
+                    {% for comment in comment_list %}
+                        <div id="root_{{ comment.pk }}" class="comment-content">
+                            <img src="{% static 'user/img/sh.ico' %}">
+                            <a class="reply" href="javascript:reply({{ comment.pk }});">回复</a>
+                            <small>{{ comment.c_time }}</small>
+                            <h4>{{ comment.user }}</h4>
+                            {{ comment.content | safe }}
+                            {% for reply in comment.children.all %}
+                                <div class="reply-content">
+                                    <img src="{% static 'user/img/sh.ico' %}">
+                                    <a class="reply" href="javascript:reply({{reply.pk}});">回复</a>
+                                    <small>{{ reply.c_time}}</small>
+                                    <h4>
+                                        {{ reply.reply_to.username }}
+                                        <li class="fa fa-reply"></li>
+                                        {{ reply.user }}
+                                    </h4>
+                                    {{ reply.content }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+            {% include 'post/right-navbar.html' %}
+        </div>
+    </div>
+{% endblock %}
+{% block extend_script %}
+    <script>
+        $('#comment-form').submit(function(){
+            var content = $('input[name=content]').val();
+            if (content == ''){
+                layer.msg('评论内容不能为空');
+                return false;
+            }
+            $.ajax({
+                url: '{% url "comment:post-comment" %}',
+                type: 'POST',
+                data: $(this).serialize(),
+                cache: false,
+                success: function(data){
+                    if (data['status'] == 'SUCCESS'){
+                        console.log(data);
+                        if($('input[name=parent]').val() == '0'){
+                            var comment_html = '<div class="comment-content ' + data['comment_id'] + '">\n' +
+                                '                <img src="/static/user/img/sh.ico">\n' +
+                                '                <a class="reply" href="">回复</a>\n' +
+                                '                <small>' + data['c_time'] + '</small>\n' +
+                                '                <h4>' + data['username'] +'</h4>\n' +
+                                '                <p>' + data['content'] + '</p>\n' +
+                            '            </div>'
+                            $(".comment-list").append(comment_html);
+                        } else {
+                            var reply_html = '<div class="reply-content">\n' +
+                                 '                        <img src="/static/user/img/sh.ico">\n' +
+                                 '                        <a class="reply" href="javascript:reply('+data['comment_id']+');">回复</a>\n' +
+                                 '                        <small>'+data['c_time']+'</small>\n' +
+                                 '                        <h4>'+data['reply_to']+'<li class="fa fa-reply"></li>\n' +
+                                 '                            '+data['username']+'</h4>\n' +
+                                 '                        <p>'+data['content']+'</p>\n' +
+                                 '                    </div>'
+                            $('#root_'+data['root_id']).append(reply_html);
+                        }
+                        $("input[name=parent]").val('0');
+                        $('input[name=content]').val('');
+                    } else if (data['status'] == 'ERROR'){
+                        layer.msg(data['msg'][0]);
+                    }
+                }
+            });
+            return false;
+        });
+        function reply(reply_comment_id){
+            $('input[name=parent]').val(reply_comment_id);
+            $('html,body').animate({scrollTop: $('#comment-form').offset().top - 200}, 300, function(){
+                $("input[name=content]").focus();
+            });
+        };
+    </script>
+{% endblock %}
