@@ -22,9 +22,9 @@ class MyAuthenticationForm(AuthenticationForm):
         username = self.cleaned_data['username']
         user = MyUser.objects.filter(Q(username=username) | Q(email=username)).first()
         if not user:
-            raise forms.ValidationError('用户不存在')
+            raise forms.ValidationError('该账号不存在，请检查输入是否正确')
         if not user.has_confirmed:
-            raise forms.ValidationError('用户未确认, 请确认邮件')
+            raise forms.ValidationError('该账号尚未激活, 请先确认邮件')
         return super(MyAuthenticationForm, self).clean()
 
 
@@ -37,6 +37,13 @@ class MyUserCreationForm(UserCreationForm):
         self.fields['password2'].widget = forms.PasswordInput(attrs={
             'class': 'form-control', 'placeholder': '重复密码'
         })
+
+    def clean(self):
+        email = self.cleaned_data['email']
+        user = MyUser.objects.filter(email=email).first()
+        if user and user.has_confirmed:
+            raise forms.ValidationError('该邮箱已注册，请直接登录')
+        return super(MyUserCreationForm, self).clean()
 
     class Meta:
         model = MyUser

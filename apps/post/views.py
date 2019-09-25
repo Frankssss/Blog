@@ -16,10 +16,10 @@ class IndexView(ListView):
     context_object_name = 'post_list'
     paginate_by = 5
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
         context.update({
-            'title': "Frank's Blog"
+            'title': "Blog"
         })
         return context
 
@@ -67,14 +67,13 @@ class PostDetailView(DetailView):
 
     def get_object(self, queryset=None):
         post = super(PostDetailView, self).get_object(queryset=None)
-        post.body = markdown.markdown(
-            post.body,
-            extensions=[
-                'markdown.extensions.extra',
-                'markdown.extensions.codehilite',
-                'markdown.extensions.toc',
-            ]
-        )
+        md = markdown.Markdown(extensions=[
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc'
+        ])
+        post.body = md.convert(post.body)
+        post.toc = md.toc
         return post
 
     def get_context_data(self, **kwargs):
@@ -102,5 +101,5 @@ class PostSearchView(View):
         if not q:
             msg = '请输入关键词'
         else:
-            post_list = Post.objects.filter(Q(title__icontains=q) | Q(content__icontains=q))
+            post_list = Post.objects.filter(Q(title__icontains=q) | Q(body__icontains=q))
         return render(request, 'post/index.html', locals())

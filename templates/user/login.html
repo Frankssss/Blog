@@ -39,7 +39,7 @@
                     if (data['status'] == 'SUCCESS'){
                         window.location = '/';
                     } else if (data['status'] == 'ERROR'){
-                        layer.msg(data['msg'][0]);
+                        layer.msg(data['msg']);
                     }
                 }
             });

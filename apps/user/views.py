@@ -29,8 +29,10 @@ class LoginView(View):
             login(request, user)
             data['status'] = 'SUCCESS'
         else:
-            data['status'] = 'ERROR'
-            data['msg'] = list(form.errors.values())[0]
+            data.update({
+                'status': 'ERROR',
+                'msg': list(form.errors.values())[0][0]
+            })
         return JsonResponse(data)
 
 
@@ -45,16 +47,20 @@ class RegisterView(View):
         data = {}
         form = MyUserCreationForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get("email", '')
             form.save()
+            email = form.cleaned_data.get("email", '')
             user = MyUser.objects.filter(Q(email=email)).first()
             code = make_confirm_code(user)
             send_ack_mail(email, code)
-            data['status'] = 'SUCCESS'
-            data['msg'] = '注册成功， 请通过邮箱确认'
+            data.update({
+                'status': 'SUCCESS',
+                'msg': '注册成功， 请通过邮箱验证'
+            })
         else:
-            data['status'] = ['ERROR']
-            data['msg'] = list(form.errors.values())[0]
+            data.update({
+                'status': 'ERROR',
+                'msg': list(form.errors.values())[0][0]
+            })
         return JsonResponse(data)
 
 
@@ -62,7 +68,7 @@ class LogoutView(View):
 
     def get(self, request):
         logout(request)
-        return redirect('/')
+        return redirect(request.META['HTTP_REFERER'])
 
 
 class UserConfirmView(View):
@@ -85,6 +91,6 @@ class UserConfirmView(View):
                 confirm.user.has_confirmed = True
                 confirm.user.save()
                 confirm.delete()
-                message = '感谢确认邮件， 请前往登录！'
+                msg = '感谢确认邮件， 请前往登录！'
         return render(request, 'user/confirm.html', locals())
 

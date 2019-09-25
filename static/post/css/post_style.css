@@ -8,8 +8,11 @@
     line-height:1.8;
     font-size:15px;
 }
-.post-info .label{
+.post-info label{
     opacity:0.8;
+}
+label span{
+    margin: 0 5px 0 3px;
 }
 .post-body{
     padding-top:15px;
@@ -74,7 +77,7 @@
 
 /* comment */
 .comment-area{
-    margin:40px 0;
+    margin:10px 0;
     padding-top: 20px;
 }
 .comment-area #comment-form{
@@ -135,4 +138,13 @@
 .reply-content{
     margin-left: 6rem;
     margin-top: 1rem;
+}
+.comment-count span{
+    margin: 0 3px;
+}
+
+/*post-nav*/
+.post-nav{
+    clear:both;
+    margin:10px;
 }

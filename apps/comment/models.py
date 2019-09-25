@@ -14,7 +14,7 @@ class Comment(models.Model):
     content = models.TextField()
     target = models.ForeignKey(
         Post,
-        related_name='post_comments',
+        related_name='target',
         on_delete=models.CASCADE,
         verbose_name='目标'
     )

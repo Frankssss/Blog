@@ -17,9 +17,9 @@ class MyUser(AbstractUser):
 
 
 class ConfirmCode(models.Model):
-    user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(MyUser, verbose_name='用户', on_delete=models.CASCADE)
     code = models.CharField(verbose_name='确认码', max_length=256)
-    c_time = models.DateTimeField(auto_now_add=True)
+    c_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
 
     def __str__(self):
         return f'{self.user}: {self.code}'

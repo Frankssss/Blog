@@ -11,8 +11,15 @@
         <div class="col-md-8 col-sm-8 col-xs-12">
             <div class="post-info">
                 <h1 class="post-title">{{ post.title }}</h1>
-                <span><i class="fa fa-clock-o"></i>&nbsp;{{ post.pub_time }}</span>
-                <span><i class="fa fa-comment"></i>&nbsp;0</span>
+                <label><i class="fa fa-clock-o"></i><span>{{ post.pub_time }}</span></label>
+                <label><i class="fa fa-comment"></i><span>{{ post.target.count }}</span></label>
+                <label><i class="fa fa-eye"></i><span>{{ post.views }}</span></label>
+                <label><i class="fa fa-bookmark"></i><span>{{ post.category }}</span></label>
+                {% for tag in post.tags.all %}
+                    <label class="label label-default">
+                        {{ tag.name }}
+                    </label>
+                {% endfor %}
                 <div class="post-body">
                     {{ post.body | safe }}
                 </div>
@@ -24,20 +31,20 @@
                 <a class="reward_button fa fa-coffee" title="打赏，支持一下"> 打赏</a>
                 <span class="clear"></span>
             </div>
-{#            <div class="post-nav">#}
-{#                {% if pre_post %}#}
-{#                    <a href="{{ pre_post.get_absolute_url}}" class="pre-post pull-left h4 btn btn-sm">#}
-{#                        <li class="icon-arrow-left"></li>#}
-{#                        {{ pre_post.title}}#}
-{#                    </a>#}
-{#                {% endif %}#}
-{#                {% if next_post %}#}
-{#                    <a href="{{ next_post.get_absolute_url }}" class="next-post pull-right h4 btn btn-sm">#}
-{#                        {{next_post.title}}#}
-{#                    <li class="icon-arrow-right"></li>#}
-{#                    </a>#}
-{#                {% endif %}#}
-{#            </div>#}
+            <div class="post-nav">
+                {% if pre_post %}
+                    <a href="{{ pre_post.get_absolute_url}}" class="pull-left h4">
+                        <li class="fa fa-arrow-circle-left"></li>
+                        {{ pre_post.title}}
+                    </a>
+                {% endif %}
+                {% if next_post %}
+                    <a href="{{ next_post.get_absolute_url }}" class="pull-right h4">
+                        {{next_post.title}}
+                        <li class="fa fa-arrow-circle-right"></li>
+                    </a>
+                {% endif %}
+            </div>
             <div class="comment-area">
                 {% if request.user.is_authenticated %}
                     <form id="comment-form" action="{% url 'comment:post-comment' %}" method="POST">
@@ -56,7 +63,7 @@
                 {% else %}
                     <a href="{% url 'user:login' %}" class="h3">登录<span class="h4">后评论</span></a>
                 {% endif %}
-                <h3>共&nbsp;{{ post.post_comments.count }}&nbsp;条评论</h3>
+                <h3 class="comment-count">共<span>{{ post.target.count }}</span>条评论</h3>
                 <div class="comment-list">
                     {% for comment in comment_list %}
                         <div id="root_{{ comment.pk }}" class="comment-content">
@@ -84,6 +91,10 @@
             </div>
         </div>
         <div class="col-md-4 col-sm-4 col-xs-12">
+            <div class="post-toc">
+                <div class="h3">文章目录</div>
+                {{ post.toc|safe }}
+            </div>
             {% include 'post/right-navbar.html' %}
         </div>
     </div>

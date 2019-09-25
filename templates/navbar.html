@@ -16,7 +16,7 @@
                 {% endif %}
             </ul>
         </div>
-        <form class="navbar-form navbar-right" action="" method="GET">
+        <form class="navbar-form navbar-right" action="{% url 'post:search' %}" method="GET">
             <div class="form-group has-feedback">
                 <label class="sr-only" for="Search">Search：</label>
                 <input type="search" class="form-control" placeholder="Search" id="search" name="q" required>
