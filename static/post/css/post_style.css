@@ -71,27 +71,20 @@ label span{
     background:#333;
     color:white;
 }
-/*.clear{*/
-    /*clear:both;*/
-/*}*/
 
 /* comment */
 .comment-area{
+    clear:both;
     margin:10px 0;
     padding-top: 20px;
 }
 .comment-area #comment-form{
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 .comment-area > a{
     text-align: center;
     border-radius: 30px;
-    display: inline-block;
     padding: 0.2rem 2rem;
-    word-spacing: 3px;
-    text-transform: uppercase;
-    margin: 1rem 0.2rem;
-    cursor: pointer;
     font-size: 1.85rem;
     color: #111111;
     background-color: #2ECC71;
@@ -139,7 +132,7 @@ label span{
     margin-left: 6rem;
     margin-top: 1rem;
 }
-.comment-count span{
+#comment-count2 span{
     margin: 0 3px;
 }
 

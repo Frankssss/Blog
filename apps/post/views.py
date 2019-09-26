@@ -4,6 +4,7 @@ import datetime
 
 from django.core.cache import cache
 from django.db.models import Q, F
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, DetailView
@@ -128,3 +129,28 @@ class PostSearchView(IndexView):
             return queryset
         else:
             return queryset.filter(Q(title__icontians=q) | Q(body__contains=q))
+
+
+class IncreaseLikesView(View):
+
+    def post(self, request):
+        pk, data = self.request.POST.get('pk'), {}
+        key = f'likes:{self.request.uid}:{self.request.path}'
+        if not Post.objects.filter(pk=pk).exists():
+            data.update({
+                'msg': '文章不存在！',
+                'status': 'ERROR'
+            })
+        elif key in cache:
+            data.update({
+                'msg': '已经点过攒了呀！',
+                'status': 'ERROR',
+            })
+        else:
+            Post.objects.filter(pk=pk).update(likes=F('likes')+1)
+            cache.set(key, 60 * 60)
+            data.update({
+                'msg': '点赞成功！',
+                'status': 'SUCCESS'
+            })
+        return JsonResponse(data)
