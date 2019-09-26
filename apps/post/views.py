@@ -1,6 +1,9 @@
 import markdown
 
-from django.db.models import Q
+import datetime
+
+from django.core.cache import cache
+from django.db.models import Q, F
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, DetailView
@@ -65,15 +68,25 @@ class PostDetailView(DetailView):
     template_name = 'post/detail.html'
     context_object_name = 'post'
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        self.handle_visited()
+        return response
+
     def get_object(self, queryset=None):
-        post = super(PostDetailView, self).get_object(queryset=None)
-        md = markdown.Markdown(extensions=[
-            'markdown.extensions.extra',
-            'markdown.extensions.codehilite',
-            'markdown.extensions.toc'
-        ])
-        post.body = md.convert(post.body)
-        post.toc = md.toc
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        key = f'detail:{pk}'
+        post = cache.get(key)
+        if not post:
+            post = super(PostDetailView, self).get_object(queryset=None)
+            md = markdown.Markdown(extensions=[
+                'markdown.extensions.extra',
+                'markdown.extensions.codehilite',
+                'markdown.extensions.toc'
+            ])
+            post.body = md.convert(post.body)
+            post.toc = md.toc
+            cache.set(key, post, 60 * 5)
         return post
 
     def get_context_data(self, **kwargs):
@@ -93,13 +106,25 @@ class PostDetailView(DetailView):
         })
         return context
 
+    def handle_visited(self):
+        increase_pv = False
+        uid = self.request.uid
+        pv_key = f'pv:{uid}:{self.request.path}'
 
-class PostSearchView(View):
+        if not cache.get(pv_key):
+            increase_pv = True
+            cache.set(pv_key, 1, 1*60*60)
 
-    def get(self, request):
-        q = request.GET.get('q')
+        if increase_pv:
+            Post.objects.filter(pk=self.object.id).update(views=F('views')+1)
+
+
+class PostSearchView(IndexView):
+
+    def get_queryset(self):
+        queryset = super(PostSearchView, self).get_queryset()
+        q = self.request.GET.get('q')
         if not q:
-            msg = '请输入关键词'
+            return queryset
         else:
-            post_list = Post.objects.filter(Q(title__icontains=q) | Q(body__icontains=q))
-        return render(request, 'post/index.html', locals())
+            return queryset.filter(Q(title__icontians=q) | Q(body__contains=q))

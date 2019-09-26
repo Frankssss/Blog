@@ -1,4 +1,10 @@
+import markdown
+
+from django.conf import settings
+from django.core.cache import cache
 from django.db import models
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from mdeditor.fields import MDTextField
 
@@ -55,3 +61,24 @@ class Post(models.Model):
         ordering = ['-pub_time']
         verbose_name = '文章'
         verbose_name_plural = verbose_name
+
+
+@receiver(pre_save, sender=Post)
+def delete_detail_cache(sender, instance=None, **kwargs):
+    key = f'detail:{instance.id}'
+    cache.delete(key)
+    print('delete ', key)
+
+
+@receiver(post_save, sender=Post)
+def reset_detail_cache(sender, instance=None, **kwargs):
+    key = f'detail:{instance.id}'
+    md = markdown.Markdown(extensions=[
+        'markdown.extensions.extra',
+        'markdown.extensions.codehilite',
+        'markdown.extensions.toc'
+    ])
+    instance.body = md.convert(instance.body)
+    instance.toc = md.toc
+    cache.set(key, instance, 5 * 60)
+    print('reset ', key)
